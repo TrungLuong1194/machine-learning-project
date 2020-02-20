@@ -48,18 +48,6 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 # ---------------------------------------------------------------------------------
-# Simple Multiple Linear Regression 
-# Fitting Multiple Linear Regression to the Training set
-# ---------------------------------------------------------------------------------
-from sklearn.linear_model import LinearRegression
-
-lr = LinearRegression()
-lr.fit(X_train, y_train)
-
-# Predicting the Test set results
-y_pred_mlr = lr.predict(X_test)
-
-# ---------------------------------------------------------------------------------
 # Decision Tree Regression
 # Fitting the Decision Tree Regression Model to the dataset
 # ---------------------------------------------------------------------------------
@@ -77,7 +65,7 @@ y_pred_dtr = regressor.predict(X_test)
 # ---------------------------------------------------------------------------------
 from sklearn.ensemble import RandomForestRegressor
 
-regressor = RandomForestRegressor(n_estimators=900, random_state=0)
+regressor = RandomForestRegressor(n_estimators=300, random_state=0)
 regressor.fit(X_train, y_train)
 
 # Predicting the Test set results
@@ -127,14 +115,6 @@ print('-------------------------------------------------------')
 print('y test:')
 print('\n')
 print(y_test)
-print('\n')
-print('\n')
-
-print('-------------------------------------------------------')
-print('Simple Multiple Linear Regression\n')
-print('y predict:')
-print('\n')
-print(y_pred_mlr)
 print('\n')
 print('\n')
 
