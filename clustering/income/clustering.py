@@ -86,3 +86,14 @@ y_ac = ac.fit_predict(X_train_scaled)
 
 # Evaluating method
 silhouette_score_ac = silhouette_score(X_train_scaled, y_ac)
+
+# -----------------------------------------------------------------------------
+# Clustering by Hierarchical clustering
+from scipy.cluster.hierarchy import dendrogram, ward
+
+linkage_array = ward(X_train_scaled)
+dendrogram(linkage_array)
+
+plt.xlabel("Sample index")
+plt.ylabel("Cluster distance")
+plt.show()
