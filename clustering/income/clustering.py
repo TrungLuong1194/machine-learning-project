@@ -41,6 +41,21 @@ scaler.fit(X_train)
 X_train_scaled = scaler.transform(X_train)
 
 # -----------------------------------------------------------------------------
+# Dimensionality Reduction by PCA
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=None)
+X_train_pca = pca.fit_transform(X_train_scaled)
+
+# Find best value for n_components: d
+cumsum = np.cumsum(pca.explained_variance_ratio_)
+d = np.argmax(cumsum >= 0.95) + 1
+
+# Rebuilding a model with best parameters
+pca = PCA(n_components=d)
+X_train_pca = pca.fit_transform(X_train_scaled)
+
+# -----------------------------------------------------------------------------
 # Clustering by K-Means and Elbow method
 from sklearn.cluster import KMeans
 
@@ -51,7 +66,7 @@ for i in range(1, 11):
                 n_init=10,
                 max_iter=300,
                 random_state=0)
-    km.fit(X_train_scaled)
+    km.fit(X_train_pca)
     distortions_km.append(km.inertia_)
     
 # Plot the distortion for different values of k
@@ -67,12 +82,12 @@ km = KMeans(n_clusters=2,
             max_iter=300,
             random_state=0)
 
-y_km = km.fit_predict(X_train_scaled)
+y_km = km.fit_predict(X_train_pca)
 
 # Evaluating method
 from sklearn.metrics import silhouette_score
 
-silhouette_score_km = silhouette_score(X_train_scaled, y_km)
+silhouette_score_km = silhouette_score(X_train_pca, y_km)
 
 # -----------------------------------------------------------------------------
 # Clustering by Agglomerative clustering
@@ -82,16 +97,16 @@ ac = AgglomerativeClustering(n_clusters=2,
                              affinity='euclidean',
                              linkage='complete')
 
-y_ac = ac.fit_predict(X_train_scaled)
+y_ac = ac.fit_predict(X_train_pca)
 
 # Evaluating method
-silhouette_score_ac = silhouette_score(X_train_scaled, y_ac)
+silhouette_score_ac = silhouette_score(X_train_pca, y_ac)
 
 # -----------------------------------------------------------------------------
 # Clustering by Hierarchical clustering
 from scipy.cluster.hierarchy import dendrogram, ward
 
-linkage_array = ward(X_train_scaled)
+linkage_array = ward(X_train_pca)
 dendrogram(linkage_array)
 
 plt.xlabel("Sample index")
