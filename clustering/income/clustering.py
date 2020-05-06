@@ -49,7 +49,7 @@ X_train_pca = pca.fit_transform(X_train_scaled)
 
 # Find best value for n_components: d
 cumsum = np.cumsum(pca.explained_variance_ratio_)
-d = np.argmax(cumsum >= 0.95) + 1
+d = np.argmax(cumsum >= 0.8) + 1
 
 # Rebuilding a model with best parameters
 pca = PCA(n_components=d)
