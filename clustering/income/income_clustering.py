@@ -229,12 +229,12 @@ print(np.array(feature.columns), '\n')
 
 from sklearn.feature_selection import chi2, SelectKBest
 
-skb = SelectKBest(score_func=chi2, k = 70)
+skb = SelectKBest(score_func=chi2, k = 20)
 skb.fit(feature, target)
 
 feature_scores = [(item, score) for item, score in zip(
                                 feature.columns, skb.scores_)]   
-sorted(feature_scores, key=lambda x: -x[1])[:70]
+sorted(feature_scores, key=lambda x: -x[1])[:20]
 
 select_features_kbest = skb.get_support()
 features_names_kbest = feature.columns[select_features_kbest]
@@ -248,92 +248,70 @@ features_selection = feature[features_names_kbest]
 X = features_selection.values
 y = target.values
 
+# Splitting the dataset
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=0)
+#------------------------------------------------------------------------------
+# Building Model
+#------------------------------------------------------------------------------
+
 # -----------------------------------------------------------------------------
-# Dimensionality Reduction by PCA
-from sklearn.decomposition import PCA
+# Clustering by K-Means and Elbow method
+from sklearn.cluster import KMeans
 
-pca = PCA(n_components=None)
-X_pca = pca.fit_transform(X)
-
-# Find best value for n_components: d
-cumsum = np.cumsum(pca.explained_variance_ratio_)
-
-plt.figure(figsize=(20,10))
-plt.bar(range(1, 71), pca.explained_variance_ratio_, alpha=0.5, align='center',
-        label='invididual explained variance')
-plt.step(range(1, 71), cumsum, where='mid',
-         label='cummulative explained variance')
-plt.ylabel('Explained variance ratio')
-plt.xlabel('Principal component index')
-plt.legend(loc='best')
+distortions_km = []
+for i in range(1, 11):
+    km = KMeans(n_clusters=i,
+                init='k-means++',
+                n_init=10,
+                max_iter=300,
+                random_state=0)
+    km.fit(X)
+    distortions_km.append(km.inertia_)
+    
+# Plot the distortion for different values of k
+plt.plot(range(1, 11), distortions_km, marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('Distortion')
 plt.show()
-
-d = np.argmax(cumsum >= 0.8) + 1
 
 # Rebuilding a model with best parameters
-pca = PCA(n_components=d)
-X_pca = pca.fit_transform(X)
+km = KMeans(n_clusters=3,
+            init='k-means++',
+            n_init=10,
+            max_iter=300,
+            random_state=0)
 
-# Principal component
-principal_component = pca.components_
+y_km = km.fit_predict(X)
 
-plt.figure(figsize=(20,10))
-plt.matshow(pca.components_, cmap='viridis')
-plt.yticks(range(0, d, 3))
-plt.colorbar()
-plt.xticks(range(0, 71, 10), rotation=60, ha='left')
-plt.xlabel("Feature")
-plt.ylabel("Principal components")
-plt.show()
+# Evaluating method
+from sklearn.metrics import silhouette_score
 
-# Visualizing results
-plt.figure(figsize=(20,10))
-
-plt.scatter(X_pca[y==0, 0], X_pca[y==0, 1], color='red', alpha=0.5,label='0')
-plt.scatter(X_pca[y==1, 0], X_pca[y==1, 1], color='blue', alpha=0.5,label='1')
-
-plt.title("PCA")
-plt.ylabel('PCA 2')
-plt.xlabel('PCA 1')
-plt.legend()
-plt.show()
+silhouette_score_km = silhouette_score(X, y_km)
 
 # -----------------------------------------------------------------------------
-# Dimensionality Reduction by t-SNE
+# Clustering by Agglomerative clustering
+from sklearn.cluster import AgglomerativeClustering
 
-from sklearn.manifold import TSNE
+ac = AgglomerativeClustering(n_clusters=2,
+                             affinity='euclidean',
+                             linkage='complete')
 
-tsne = TSNE(random_state=42)
-X_tsne = tsne.fit_transform(X)
+y_ac = ac.fit_predict(X_train)
 
-# Visualizing results
-plt.figure(figsize=(20,10))
+# Evaluating method
+silhouette_score_ac = silhouette_score(X_train, y_ac)
 
-plt.scatter(X_tsne[y==0, 0], X_tsne[y==0, 1], color='red', alpha=0.5,label='0')
-plt.scatter(X_tsne[y==1, 0], X_tsne[y==1, 1], color='blue', alpha=0.5,label='1')
+#------------------------------------------------------------------------------
+# Algorithm Evaluation
+#------------------------------------------------------------------------------
 
-plt.title("t-SNE")
-plt.ylabel('t-SNE 2')
-plt.xlabel('t-SNE 1')
-plt.legend()
-plt.show()
+clusters = np.array([3, 2])
+evaluation_silhouette_score = np.array([silhouette_score_km, silhouette_score_ac])
 
-# -----------------------------------------------------------------------------
-# Dimensionality Reduction by GRP
+data = {'Number of clusters': clusters,
+        'Silhouette Score': evaluation_silhouette_score}
 
-from sklearn.random_projection import GaussianRandomProjection
-
-grp = GaussianRandomProjection(n_components=18,eps = 0.5, random_state=42)
-X_grp = grp.fit_transform(X)
-
-# Visualizing results
-plt.figure(figsize=(20,10))
-
-plt.scatter(X_grp[y==0, 0], X_grp[y==0, 1], color='red', alpha=0.5,label='0')
-plt.scatter(X_grp[y==1, 0], X_grp[y==1, 1], color='blue', alpha=0.5,label='1')
-
-plt.title("GRP")
-plt.ylabel('GRP 2')
-plt.xlabel('GRP 1')
-plt.legend()
-plt.show()
+evalution_algorithm = pd.DataFrame(data, index=['Number of clusters', 'Silhouette Score'])
