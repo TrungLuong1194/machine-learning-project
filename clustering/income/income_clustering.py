@@ -314,4 +314,4 @@ evaluation_silhouette_score = np.array([silhouette_score_km, silhouette_score_ac
 data = {'Number of clusters': clusters,
         'Silhouette Score': evaluation_silhouette_score}
 
-evalution_algorithm = pd.DataFrame(data, index=['Number of clusters', 'Silhouette Score'])
+evalution_algorithm = pd.DataFrame(data, index=['K-Means', 'Agglomerative clustering'])

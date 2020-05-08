@@ -248,7 +248,10 @@ features_selection = feature[features_names_kbest]
 X = features_selection.values
 y = target.values
 
-# -----------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Dimensionality Reduction Model
+#------------------------------------------------------------------------------
+
 # Dimensionality Reduction by PCA
 from sklearn.decomposition import PCA
 
@@ -300,7 +303,6 @@ plt.show()
 
 # -----------------------------------------------------------------------------
 # Dimensionality Reduction by t-SNE
-
 from sklearn.manifold import TSNE
 
 tsne = TSNE(random_state=42)
@@ -320,7 +322,6 @@ plt.show()
 
 # -----------------------------------------------------------------------------
 # Dimensionality Reduction by GRP
-
 from sklearn.random_projection import GaussianRandomProjection
 
 grp = GaussianRandomProjection(n_components=18,eps = 0.5, random_state=42)
