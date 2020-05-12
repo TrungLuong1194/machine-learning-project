@@ -84,6 +84,10 @@ print("Education:\n")
 print(dataset['education'].value_counts())
 print("\n")
 
+print("Income:\n")
+print(dataset['income'].value_counts())
+print("\n")
+
 #------------------------------------------------------------------------------
 # Data Visualizing
 #------------------------------------------------------------------------------
